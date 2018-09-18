@@ -104,8 +104,8 @@ def getDistance(x0, y0, x1, y1):
 
 
 def normalizeAngle(angle):
-    if abs(angle) > 720.0:
-        print("angle error")
+    # if abs(angle) > 720.0:
+    #     print("angle error")
     while angle > 180.0:
         angle -= 360.0
     while angle < -180:
