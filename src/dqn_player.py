@@ -131,8 +131,8 @@ class QNetwork:
 
     # 重みの学習
     def replay(self, memory, batch_size, gamma, targetQN):
-        inputs = np.zeros((batch_size, 4))
-        targets = np.zeros((batch_size, 2))
+        inputs = np.zeros((batch_size, 5))
+        targets = np.zeros((batch_size, 7))
         mini_batch = memory.sample(batch_size)
 
         for i, (state_b, action_b, reward_b, next_state_b) in enumerate(mini_batch):
