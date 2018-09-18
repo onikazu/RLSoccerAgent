@@ -8,11 +8,11 @@ import math
 OUT_OF_RANGE = 999
 
 
-def getParam(self, message, keyword, number):
+def getParam(message, keyword, number):
     key = "(" + keyword
     index0 = message.find(key)
     if index0 < 0:
-        return self.OUT_OF_RANGE
+        return OUT_OF_RANGE
 
     index1 = message.find(" ", index0 + len(key))
     if number == 4:
@@ -36,7 +36,7 @@ def getParam(self, message, keyword, number):
     except Exception:
         # print("player4[getParam]:文字データによるエラー")
         # print("error 時のgetparamの引数{} ,{}, {}".format(message, keyword, number))
-        result = self.OUT_OF_RANGE
+        result = OUT_OF_RANGE
     return result
 
 
