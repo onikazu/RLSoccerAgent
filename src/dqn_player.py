@@ -119,15 +119,16 @@ def huberloss(y_true, y_pred):
 
 class QNetwork:
     def __init__(self, learning_rate=0.01, state_size=5, action_size=7, hidden_size=10, m_strSide="right", m_iNumber=1):
-        if os.path.isfile("./models/main_model{}{}.h5".format(m_strSide, m_iNumber)):
-            self.model = load_model("./models/main_model{}{}.h5".format(m_strSide, m_iNumber))
-        self.model = Sequential()
-        self.model.add(Dense(hidden_size, activation='relu', input_dim=state_size))
-        self.model.add(Dense(hidden_size, activation='relu'))
-        self.model.add(Dense(action_size, activation='linear'))
-        self.optimizer = Adam(lr=learning_rate)  # 誤差を減らす学習方法はAdam
-        # self.model.compile(loss='mse', optimizer=self.optimizer)
-        self.model.compile(loss=huberloss, optimizer=self.optimizer)
+        with tf.Graph.as_default():
+            if os.path.isfile("./models/main_model{}{}.h5".format(m_strSide, m_iNumber)):
+                self.model = load_model("./models/main_model{}{}.h5".format(m_strSide, m_iNumber))
+            self.model = Sequential()
+            self.model.add(Dense(hidden_size, activation='relu', input_dim=state_size))
+            self.model.add(Dense(hidden_size, activation='relu'))
+            self.model.add(Dense(action_size, activation='linear'))
+            self.optimizer = Adam(lr=learning_rate)  # 誤差を減らす学習方法はAdam
+            # self.model.compile(loss='mse', optimizer=self.optimizer)
+            self.model.compile(loss=huberloss, optimizer=self.optimizer)
 
     # 重みの学習
     def replay(self, memory, batch_size, gamma, targetQN):
@@ -181,7 +182,7 @@ class Actor:
             action = np.argmax(retTargetQs)  # 最大の報酬を返す行動を選択する
 
         else:
-            action = np.random.choice([0, 1])  # ランダムに行動する
+            action = np.random.choice([0, 1, 2, 3, 4, 5, 6])  # ランダムに行動する
 
         return action
 
