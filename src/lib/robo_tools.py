@@ -40,7 +40,7 @@ def getParam(message, keyword, number):
     return result
 
 
-def getObjectMessage(self, message, keyword):
+def getObjectMessage(message, keyword):
     result = ""
     index0 = message.find(keyword)
     while -1 < index0:
@@ -97,13 +97,13 @@ def getNeckDir(message):
     return playerNeck
 
 
-def getDistance(self, x0, y0, x1, y1):
+def getDistance(x0, y0, x1, y1):
     dx = x1 - x0
     dy = y1 - y0
     return math.sqrt(dx * dx + dy * dy)
 
 
-def normalizeAngle(self, angle):
+def normalizeAngle(angle):
     if abs(angle) > 720.0:
         print("angle error")
     while angle > 180.0:
