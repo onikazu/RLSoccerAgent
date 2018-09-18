@@ -28,6 +28,7 @@ class AnalyzePlayer(base_player_plus.BasePlayerPlus, threading.Thread):
             if self.m_strPlayMode.startswith("play_on"):
                 self.beforeSendCommandFirstTime()
                 self.beforeSendCommand()
+            print(self.m_strCommand)
             self.send(self.m_strCommand)
 
         # 聴覚メッセージの処理
