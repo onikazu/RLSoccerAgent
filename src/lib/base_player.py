@@ -247,11 +247,11 @@ class BasePlayer(threading.Thread):
         self.send(command)
         
         # ログ・ファイルの初期化確認
-        if not os.path.isfile("./logs/{0}_{1}_reward.log".format(self.m_strTeamName, self.m_iNumber)):
-            with open("./logs/{0}_{1}_reward.log".format(self.m_strTeamName, self.m_iNumber), "w") as the_file:
+        if not os.path.isfile("../logs/{0}_{1}_reward.log".format(self.m_strTeamName, self.m_iNumber)):
+            with open("../logs/{0}_{1}_reward.log".format(self.m_strTeamName, self.m_iNumber), "w") as the_file:
                 the_file.write("")
         if not os.path.isfile("./logs/{0}_{1}_command.log".format(self.m_strTeamName, self.m_iNumber)):
-            with open("./logs/{0}_{1}_command.log".format(self.m_strTeamName, self.m_iNumber), "w") as the_file:
+            with open("../logs/{0}_{1}_command.log".format(self.m_strTeamName, self.m_iNumber), "w") as the_file:
                 the_file.write("")
         else:
             pass
