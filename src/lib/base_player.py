@@ -262,6 +262,7 @@ class BasePlayer(threading.Thread):
             message = self.receive()
             # print(message)
             self.analyzeMessage(message)
+
                       
     def analyzeMessage(self, message):
         return 

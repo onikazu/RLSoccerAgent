@@ -54,7 +54,9 @@ class DQNPlayer(analyze_player.AnalyzePlayer, threading.Thread):
             return
         self.actions_select = self.actor.get_action(self.state, self.episode, self.mainQN)
         self.m_strCommand = self.actions[self.actions_select]
+
         self.step += 1
+
 
     def beforeSendCommand(self):
         if self.step > 0:
@@ -68,6 +70,7 @@ class DQNPlayer(analyze_player.AnalyzePlayer, threading.Thread):
 
         self.actions_select = self.actor.get_action(self.state, self.episode, self.mainQN)
         self.m_strCommand = self.actions[self.actions_select]
+        print(self.m_strCommand)
         self.step += 1
 
     def calc_reward(self):
