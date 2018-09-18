@@ -46,7 +46,7 @@ class AnalyzePlayer(base_player_plus.BasePlayerPlus, threading.Thread):
         # エラーの処理
         else:
             print("p11 サーバーからエラーが伝えられた:", message)
-            print("p11 エラー発生原因のコマンドは右記の通り :", self.m_strCommand[self.m_iTime])
+            print("p11 エラー発生原因のコマンドは右記の通り :", self.m_strCommand)
 
     def analyzeInitialMessage(self, message):
         index0 = message.index(" ")
