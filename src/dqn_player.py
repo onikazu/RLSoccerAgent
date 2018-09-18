@@ -4,7 +4,7 @@ DQN で学習を行うサッカープレイヤーエージェント
 """
 
 import numpy as np
-from keras.models import Sequential, model_from_json
+from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.models import load_model
@@ -142,6 +142,7 @@ class QNetwork:
 
             if not (next_state_b == np.zeros(state_b.shape)).all(axis=1):
                 # 価値計算（DDQNにも対応できるように、行動決定のQネットワークと価値観数のQネットワークは分離）
+
                 retmainQs = self.model.predict(next_state_b)[0]
                 next_action = np.argmax(retmainQs)  # 最大の報酬を返す行動を選択する
                 target = reward_b + gamma * targetQN.model.predict(next_state_b)[0][next_action]
@@ -176,9 +177,10 @@ class Actor:
     def get_action(self, state, episode, targetQN):  # [C]ｔ＋１での行動を返す
         # 徐々に最適行動のみをとる、ε-greedy法
         epsilon = 0.001 + 0.9 / (1.0 + episode)
-
+        global graph
         if epsilon <= np.random.uniform(0, 1):
-            retTargetQs = targetQN.model.predict(state)[0]
+            with tf.graph.as_default:
+                retTargetQs = targetQN.model.predict(state)[0]
             action = np.argmax(retTargetQs)  # 最大の報酬を返す行動を選択する
 
         else:
@@ -188,6 +190,7 @@ class Actor:
 
 if __name__ == "__main__":
     plays = []
+    graph = tf.get_default_graph()
     for i in range(4):
         p = DQNPlayer()
         plays.append(p)
