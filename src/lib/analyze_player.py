@@ -25,9 +25,9 @@ class AnalyzePlayer(base_player_plus.BasePlayerPlus, threading.Thread):
         elif message.startswith("(sense_body "):
             self.analyzePhysicalMessage(message)
             # この部分にコマンドを決定するコードを挿入してやる
-            if self.m_strPlayMode.startswith("play_on"):
-                self.beforeSendCommandFirstTime()
-                self.beforeSendCommand()
+            # if self.m_strPlayMode.startswith("play_on"):
+            self.beforeSendCommandFirstTime()
+            self.beforeSendCommand()
             print(self.m_strCommand)
             self.send(self.m_strCommand)
 
