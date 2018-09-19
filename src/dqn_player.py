@@ -46,8 +46,11 @@ class DQNPlayer(analyze_player.AnalyzePlayer, threading.Thread):
         self.episode_reward = 0
         self.episode = int(sys.argv[2])
         self.step = 0
-
         self.targetQN = self.mainQN
+        self.init = tf.global_variables_initializer()
+        self.sess_main = tf.Session()
+        self.sess_target = tf.Session()
+
 
     def beforeSendCommandFirstTime(self):
         if self.step == 0:
@@ -117,18 +120,26 @@ def huberloss(y_true, y_pred):
     return K.mean(loss)
 
 
+# 出力はQ値
 class QNetwork:
     def __init__(self, learning_rate=0.01, state_size=5, action_size=7, hidden_size=10, m_strSide="right", m_iNumber=1):
-        with tf.Graph.as_default():
-            if os.path.isfile("./models/main_model{}{}.h5".format(m_strSide, m_iNumber)):
-                self.model = load_model("./models/main_model{}{}.h5".format(m_strSide, m_iNumber))
-            self.model = Sequential()
-            self.model.add(Dense(hidden_size, activation='relu', input_dim=state_size))
-            self.model.add(Dense(hidden_size, activation='relu'))
-            self.model.add(Dense(action_size, activation='linear'))
-            self.optimizer = Adam(lr=learning_rate)  # 誤差を減らす学習方法はAdam
-            # self.model.compile(loss='mse', optimizer=self.optimizer)
-            self.model.compile(loss=huberloss, optimizer=self.optimizer)
+        # if os.path.isfile("./models/main_model{}{}.h5".format(m_strSide, m_iNumber)):
+        #     self.model = load_model("./models/main_model{}{}.h5".format(m_strSide, m_iNumber))
+        # self.model = Sequential()
+        # self.model.add(Dense(hidden_size, activation='relu', input_dim=state_size))
+        # self.model.add(Dense(hidden_size, activation='relu'))
+        # self.model.add(Dense(action_size, activation='linear'))
+        # self.optimizer = Adam(lr=learning_rate)  # 誤差を減らす学習方法はAdam
+        # # self.model.compile(loss='mse', optimizer=self.optimizer)
+        # self.model.compile(loss=huberloss, optimizer=self.optimizer)
+        x = tf.placeholder(shape=[None, state_size], dtype=tf.float32)
+        yout = tf.placeholder(shape=[None, action_size], dtype=tf.float32)
+        mid_1 = tf.layers.dense(inputs=x, units=hidden_size, activation=tf.nn.relu)
+        mid_2 = tf.layers.dense(inputs=mid_1, units=hidden_size, activation=tf.nn.relu)
+        # 活性化関数に何も設定しないと線形関数になる
+        y = tf.layers.dense(inputs=mid_2, units=action_size)
+
+
 
     # 重みの学習
     def replay(self, memory, batch_size, gamma, targetQN):
