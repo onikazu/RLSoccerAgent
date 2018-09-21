@@ -33,6 +33,7 @@ class DQNPlayer(analyze_player.AnalyzePlayer, threading.Thread):
         self.learning_rate = 0.00001  # Q-networkの学習係数
         self.memory_size = 10000  # バッファーメモリの大きさ
         self.batch_size = 32  # Q-networkを更新するバッチの大記載
+        self.gamma = 0.99
 
         self.mainQN = QNetwork(hidden_size=self.hidden_size, learning_rate=self.learning_rate, m_strSide=self.m_strSide, m_iNumber=self.m_iNumber)  # メインのQネットワーク
         self.targetQN = QNetwork(hidden_size=self.hidden_size, learning_rate=self.learning_rate, m_strSide=self.m_strSide, m_iNumber=self.m_iNumber)  # 価値を計算するQネットワーク
@@ -47,13 +48,17 @@ class DQNPlayer(analyze_player.AnalyzePlayer, threading.Thread):
         self.episode = int(sys.argv[2])
         self.step = 0
         self.targetQN = self.mainQN
+
+        # tensorflow セッションの初期化
         self.init = tf.global_variables_initializer()
         self.sess_main = tf.Session()
         self.sess_target = tf.Session()
+        self.sess_main.run(self.init)
+        self.sess_target.run(self.init)
 
 
     def beforeSendCommandFirstTime(self):
-        if self.step == 0:
+        if self.step > 0:
             return
         self.actions_select = self.actor.get_action(self.state, self.episode, self.mainQN)
         self.m_strCommand = self.actions[self.actions_select]
@@ -62,7 +67,7 @@ class DQNPlayer(analyze_player.AnalyzePlayer, threading.Thread):
 
 
     def beforeSendCommand(self):
-        if self.step > 0:
+        if self.step == 0:
             return
         next_state = [self.m_dX, self.m_dY, self.m_dBallX, self.m_dBallY, self.m_dStamina]
         next_state = np.reshape(next_state, [1, len(next_state)])
@@ -70,6 +75,8 @@ class DQNPlayer(analyze_player.AnalyzePlayer, threading.Thread):
         self.episode_reward += self.reward
         self.memory.add((self.state, self.actions_select, self.reward, next_state))  # メモリの更新する
         self.state = next_state  # 状態更新
+        if self.memory.len() > self.batch_size:
+            self.mainQN.replay(self.memory, self.batch_size, self.gamma, self.targetQN)
 
         self.actions_select = self.actor.get_action(self.state, self.episode, self.mainQN)
         self.m_strCommand = self.actions[self.actions_select]
@@ -133,11 +140,16 @@ class QNetwork:
         # # self.model.compile(loss='mse', optimizer=self.optimizer)
         # self.model.compile(loss=huberloss, optimizer=self.optimizer)
         x = tf.placeholder(shape=[None, state_size], dtype=tf.float32)
+
+
         yout = tf.placeholder(shape=[None, action_size], dtype=tf.float32)
         mid_1 = tf.layers.dense(inputs=x, units=hidden_size, activation=tf.nn.relu)
         mid_2 = tf.layers.dense(inputs=mid_1, units=hidden_size, activation=tf.nn.relu)
         # 活性化関数に何も設定しないと線形関数になる
         y = tf.layers.dense(inputs=mid_2, units=action_size)
+        loss = huberloss
+
+
 
 
 
@@ -160,7 +172,7 @@ class QNetwork:
 
             targets[i] = self.model.predict(state_b)  # Qネットワークの出力
             targets[i][action_b] = target  # 教師信号
-            self.model.fit(inputs, targets, epochs=1, verbose=0)  # epochsは訓練データの反復回数、verbose=0は表示なしの設定
+        self.model.fit(inputs, targets, epochs=1, verbose=0)  # epochsは訓練データの反復回数、verbose=0は表示なしの設定
 
 
 # [3]Experience ReplayとFixed Target Q-Networkを実現するメモリクラス
@@ -190,14 +202,12 @@ class Actor:
         epsilon = 0.001 + 0.9 / (1.0 + episode)
         global graph
         if epsilon <= np.random.uniform(0, 1):
-            with tf.graph.as_default:
-                retTargetQs = targetQN.model.predict(state)[0]
+            retTargetQs = targetQN.model.predict(state)[0]
             action = np.argmax(retTargetQs)  # 最大の報酬を返す行動を選択する
-
         else:
             action = np.random.choice([0, 1, 2, 3, 4, 5, 6])  # ランダムに行動する
-
         return action
+
 
 if __name__ == "__main__":
     plays = []
